@@ -107,46 +107,45 @@ func newRouter(db *gorm.DB) *gin.Engine {
 	router.GET("/health", healthCheck(db))
 
 	postgresRepository := repository.NewRepository(db)
-	applicationService := service.NewService(
-		postgresRepository,
-		postgresRepository,
-		postgresRepository,
-		postgresRepository,
-		postgresRepository,
-	)
-	applicationHandler := handler.NewHandler(
-		applicationService,
-		applicationService,
-		applicationService,
-		applicationService,
-		applicationService,
-	)
+	userService := service.NewUserService(postgresRepository)
+	auditLogService := service.NewAuditLogService(postgresRepository)
+	rulesetService := service.NewRulesetService(postgresRepository)
+	roleService := service.NewRoleService(postgresRepository)
+	customerService := service.NewCustomerService(postgresRepository)
+	cardService := service.NewCardService(postgresRepository)
 
-	router.POST("/users", applicationHandler.CreateUser)
-	router.GET("/users", applicationHandler.ListUsers)
-	router.GET("/users/:id", applicationHandler.GetUser)
-	router.PUT("/users/:id", applicationHandler.UpdateUser)
-	router.DELETE("/users/:id", applicationHandler.DeleteUser)
+	userHandler := handler.NewUserHandler(userService)
+	auditLogHandler := handler.NewAuditLogHandler(auditLogService)
+	rulesetHandler := handler.NewRulesetHandler(rulesetService)
+	roleHandler := handler.NewRoleHandler(roleService)
+	customerHandler := handler.NewCustomerHandler(customerService)
+	cardHandler := handler.NewCardHandler(cardService)
 
-	router.POST("/audit-logs", applicationHandler.CreateAuditLog)
-	router.GET("/audit-logs", applicationHandler.ListAuditLogs)
+	router.POST("/users", userHandler.CreateUser)
+	router.GET("/users", userHandler.ListUsers)
+	router.GET("/users/:id", userHandler.GetUser)
+	router.PUT("/users/:id", userHandler.UpdateUser)
+	router.DELETE("/users/:id", userHandler.DeleteUser)
 
-	router.POST("/rulesets", applicationHandler.CreateRuleset)
-	router.GET("/rulesets", applicationHandler.ListRulesets)
+	router.POST("/audit-logs", auditLogHandler.CreateAuditLog)
+	router.GET("/audit-logs", auditLogHandler.ListAuditLogs)
 
-	router.GET("/roles", applicationHandler.ListRoles)
+	router.POST("/rulesets", rulesetHandler.CreateRuleset)
+	router.GET("/rulesets", rulesetHandler.ListRulesets)
 
-	router.POST("/customers", applicationHandler.CreateCustomer)
-	router.GET("/customers", applicationHandler.ListCustomers)
-	router.GET("/customers/:id", applicationHandler.GetCustomer)
-	router.PUT("/customers/:id", applicationHandler.UpdateCustomer)
-	router.DELETE("/customers/:id", applicationHandler.DeleteCustomer)
+	router.GET("/roles", roleHandler.ListRoles)
 
-	router.POST("/cards", applicationHandler.CreateCard)
-	router.GET("/cards", applicationHandler.ListCards)
-	router.GET("/cards/:id", applicationHandler.GetCard)
-	router.PUT("/cards/:id", applicationHandler.UpdateCard)
-	router.DELETE("/cards/:id", applicationHandler.DeleteCard)
+	router.POST("/customers", customerHandler.CreateCustomer)
+	router.GET("/customers", customerHandler.ListCustomers)
+	router.GET("/customers/:id", customerHandler.GetCustomer)
+	router.PUT("/customers/:id", customerHandler.UpdateCustomer)
+	router.DELETE("/customers/:id", customerHandler.DeleteCustomer)
+
+	router.POST("/cards", cardHandler.CreateCard)
+	router.GET("/cards", cardHandler.ListCards)
+	router.GET("/cards/:id", cardHandler.GetCard)
+	router.PUT("/cards/:id", cardHandler.UpdateCard)
+	router.DELETE("/cards/:id", cardHandler.DeleteCard)
 
 	return router
 }
@@ -188,7 +187,16 @@ func runServer(server *http.Server) error {
 	case err := <-serverErr:
 		return err
 	case <-ctx.Done():
-		return gracefulShutdown(server)
+		shutdownErr := gracefulShutdown(server)
+		if shutdownErr != nil {
+			_ = server.Close()
+		}
+
+		serveErr := <-serverErr
+		if shutdownErr != nil {
+			return shutdownErr
+		}
+		return serveErr
 	}
 }
 
