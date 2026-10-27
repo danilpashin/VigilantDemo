@@ -18,6 +18,9 @@ import (
 	"gorm.io/gorm"
 
 	"vigilant/internal/database"
+	"vigilant/internal/handler"
+	"vigilant/internal/repository"
+	"vigilant/internal/service"
 )
 
 func main() {
@@ -102,6 +105,35 @@ func newRouter(db *gorm.DB) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger(), gin.Recovery())
 	router.GET("/health", healthCheck(db))
+
+	postgresRepository := repository.NewRepository(db)
+	applicationService := service.NewService(
+		postgresRepository,
+		postgresRepository,
+		postgresRepository,
+		postgresRepository,
+	)
+	applicationHandler := handler.NewHandler(
+		applicationService,
+		applicationService,
+		applicationService,
+		applicationService,
+	)
+
+	router.POST("/users", applicationHandler.CreateUser)
+	router.GET("/users", applicationHandler.ListUsers)
+	router.GET("/users/:id", applicationHandler.GetUser)
+	router.PUT("/users/:id", applicationHandler.UpdateUser)
+	router.DELETE("/users/:id", applicationHandler.DeleteUser)
+
+	router.POST("/audit-logs", applicationHandler.CreateAuditLog)
+	router.GET("/audit-logs", applicationHandler.ListAuditLogs)
+
+	router.POST("/rulesets", applicationHandler.CreateRuleset)
+	router.GET("/rulesets", applicationHandler.ListRulesets)
+
+	router.GET("/roles", applicationHandler.ListRoles)
+
 	return router
 }
 
