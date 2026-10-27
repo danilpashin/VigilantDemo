@@ -3,9 +3,13 @@ package service
 import (
 	"context"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"vigilant/internal/models"
 	"vigilant/internal/repository"
 )
+
+const userPasswordHashCost = 12
 
 type Service struct {
 	users     repository.UserRepository
@@ -23,7 +27,12 @@ func NewService(
 	return &Service{users: users, auditLogs: auditLogs, rulesets: rulesets, roles: roles}
 }
 
-func (s *Service) CreateUser(ctx context.Context, user *models.User) error {
+func (s *Service) CreateUser(ctx context.Context, user *models.User, password string) error {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), userPasswordHashCost)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = string(passwordHash)
 	return s.users.CreateUser(ctx, user)
 }
 
@@ -35,7 +44,12 @@ func (s *Service) GetUser(ctx context.Context, id int) (*models.User, error) {
 	return s.users.GetUser(ctx, id)
 }
 
-func (s *Service) UpdateUser(ctx context.Context, id int, user *models.User) error {
+func (s *Service) UpdateUser(ctx context.Context, id int, user *models.User, password string) error {
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), userPasswordHashCost)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = string(passwordHash)
 	return s.users.UpdateUser(ctx, id, user)
 }
 

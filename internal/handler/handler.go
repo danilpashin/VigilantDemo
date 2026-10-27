@@ -39,14 +39,17 @@ func (h *Handler) CreateUser(c *gin.Context) {
 		respondWithError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
+	if len(request.Password) > 72 {
+		respondWithError(c, http.StatusBadRequest, "password must be at most 72 bytes")
+		return
+	}
 
 	user := &models.User{
-		Name:         request.Name,
-		Login:        request.Login,
-		PasswordHash: request.PasswordHash,
-		RoleID:       request.RoleID,
+		Name:   request.Name,
+		Login:  request.Login,
+		RoleID: request.RoleID,
 	}
-	if err := h.users.CreateUser(c.Request.Context(), user); err != nil {
+	if err := h.users.CreateUser(c.Request.Context(), user, request.Password); err != nil {
 		respondWithError(c, http.StatusInternalServerError, "could not create user")
 		return
 	}
@@ -93,14 +96,17 @@ func (h *Handler) UpdateUser(c *gin.Context) {
 		respondWithError(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
+	if len(request.Password) > 72 {
+		respondWithError(c, http.StatusBadRequest, "password must be at most 72 bytes")
+		return
+	}
 
 	user := &models.User{
-		Name:         request.Name,
-		Login:        request.Login,
-		PasswordHash: request.PasswordHash,
-		RoleID:       request.RoleID,
+		Name:   request.Name,
+		Login:  request.Login,
+		RoleID: request.RoleID,
 	}
-	if err := h.users.UpdateUser(c.Request.Context(), id, user); errors.Is(err, gorm.ErrRecordNotFound) {
+	if err := h.users.UpdateUser(c.Request.Context(), id, user, request.Password); errors.Is(err, gorm.ErrRecordNotFound) {
 		respondWithError(c, http.StatusNotFound, "user not found")
 		return
 	} else if err != nil {

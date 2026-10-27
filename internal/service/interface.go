@@ -7,10 +7,10 @@ import (
 )
 
 type UserService interface {
-	CreateUser(ctx context.Context, user *models.User) error
+	CreateUser(ctx context.Context, user *models.User, password string) error
 	ListUsers(ctx context.Context) ([]models.User, error)
 	GetUser(ctx context.Context, id int) (*models.User, error)
-	UpdateUser(ctx context.Context, id int, user *models.User) error
+	UpdateUser(ctx context.Context, id int, user *models.User, password string) error
 	DeleteUser(ctx context.Context, id int) error
 }
 

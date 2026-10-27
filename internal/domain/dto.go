@@ -3,10 +3,10 @@ package domain
 import "time"
 
 type UserDTO struct {
-	Name         string `json:"name" binding:"required"`
-	Login        string `json:"login" binding:"required"`
-	PasswordHash string `json:"password_hash" binding:"required"`
-	RoleID       int    `json:"role_id" binding:"required,gt=0"`
+	Name     string `json:"name" binding:"required"`
+	Login    string `json:"login" binding:"required"`
+	Password string `json:"password" binding:"required"`
+	RoleID   int    `json:"role_id" binding:"required,gt=0"`
 }
 
 type AuditLogDTO struct {
