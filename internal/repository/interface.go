@@ -27,3 +27,19 @@ type RulesetRepository interface {
 type RoleRepository interface {
 	ListRoles(ctx context.Context) ([]models.Role, error)
 }
+
+type CustomerRepository interface {
+	CreateCustomer(ctx context.Context, customer *models.Customer) error
+	ListCustomers(ctx context.Context) ([]models.Customer, error)
+	GetCustomer(ctx context.Context, id string) (*models.Customer, error)
+	UpdateCustomer(ctx context.Context, id string, customer *models.Customer) error
+	DeleteCustomer(ctx context.Context, id string) error
+}
+
+type CardRepository interface {
+	CreateCard(ctx context.Context, card *models.Card) error
+	ListCards(ctx context.Context) ([]models.Card, error)
+	GetCard(ctx context.Context, id string) (*models.Card, error)
+	UpdateCard(ctx context.Context, id string, card *models.Card) error
+	DeleteCard(ctx context.Context, id string) error
+}

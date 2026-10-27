@@ -112,8 +112,10 @@ func newRouter(db *gorm.DB) *gin.Engine {
 		postgresRepository,
 		postgresRepository,
 		postgresRepository,
+		postgresRepository,
 	)
 	applicationHandler := handler.NewHandler(
+		applicationService,
 		applicationService,
 		applicationService,
 		applicationService,
@@ -133,6 +135,18 @@ func newRouter(db *gorm.DB) *gin.Engine {
 	router.GET("/rulesets", applicationHandler.ListRulesets)
 
 	router.GET("/roles", applicationHandler.ListRoles)
+
+	router.POST("/customers", applicationHandler.CreateCustomer)
+	router.GET("/customers", applicationHandler.ListCustomers)
+	router.GET("/customers/:id", applicationHandler.GetCustomer)
+	router.PUT("/customers/:id", applicationHandler.UpdateCustomer)
+	router.DELETE("/customers/:id", applicationHandler.DeleteCustomer)
+
+	router.POST("/cards", applicationHandler.CreateCard)
+	router.GET("/cards", applicationHandler.ListCards)
+	router.GET("/cards/:id", applicationHandler.GetCard)
+	router.PUT("/cards/:id", applicationHandler.UpdateCard)
+	router.DELETE("/cards/:id", applicationHandler.DeleteCard)
 
 	return router
 }

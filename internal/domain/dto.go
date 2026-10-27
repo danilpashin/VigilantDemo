@@ -24,3 +24,19 @@ type RulesetDTO struct {
 	ActivatedAt     *time.Time     `json:"activated_at"`
 	DeactivatedAt   *time.Time     `json:"deactivated_at"`
 }
+
+type CustomerDTO struct {
+	ID          string  `json:"id"`
+	Status      string  `json:"status" binding:"required,oneof=ACTIVE RESTRICTED CLOSED"`
+	HomeCountry *string `json:"home_country" binding:"omitempty,len=2"`
+	HomeCity    *string `json:"home_city"`
+}
+
+type CardDTO struct {
+	ID         string     `json:"id"`
+	CustomerID string     `json:"customer_id" binding:"required"`
+	Token      string     `json:"token" binding:"required"`
+	Last4      string     `json:"last4" binding:"required,len=4,numeric"`
+	Status     string     `json:"status" binding:"required,oneof=ACTIVE BLOCKED EXPIRED CLOSED"`
+	ExpiresAt  *time.Time `json:"expires_at"`
+}
