@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS decision_rule_hits;
+DROP TABLE IF EXISTS risk_decisions;
+DROP TABLE IF EXISTS authorization_attempts;
+DROP TABLE IF EXISTS rulesets;
+DROP TABLE IF EXISTS merchants;
+DROP TABLE IF EXISTS cards;
+DROP TABLE IF EXISTS customers;
